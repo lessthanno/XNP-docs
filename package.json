@@ -1,0 +1,14 @@
+{
+  "name": "xnp-docs",
+  "version": "1.0.0",
+  "description": "XNP — X-Agent Network Protocol documentation",
+  "private": true,
+  "scripts": {
+    "dev": "vitepress dev docs",
+    "build": "vitepress build docs",
+    "preview": "vitepress preview docs"
+  },
+  "devDependencies": {
+    "vitepress": "^1.5.0"
+  }
+}

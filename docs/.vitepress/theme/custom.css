@@ -1,0 +1,89 @@
+/* XNP Docs — dark theme override */
+:root {
+  --vp-c-brand-1: #e5e5e5;
+  --vp-c-brand-2: #a3a3a3;
+  --vp-c-brand-3: #737373;
+  --vp-font-family-base: 'Inter', system-ui, sans-serif;
+  --vp-font-family-mono: 'Roboto Mono', 'JetBrains Mono', monospace;
+}
+
+.dark {
+  --vp-c-bg: #0a0a0a;
+  --vp-c-bg-soft: #111111;
+  --vp-c-bg-mute: #161616;
+  --vp-c-divider: #1c1c1c;
+  --vp-c-text-1: #e5e5e5;
+  --vp-c-text-2: #a3a3a3;
+  --vp-c-text-3: #737373;
+  --vp-c-brand-1: #e5e5e5;
+  --vp-c-brand-2: #a3a3a3;
+  --vp-sidebar-bg-color: #0a0a0a;
+  --vp-nav-bg-color: #0a0a0aee;
+  --vp-code-bg: #111111;
+  --vp-code-color: #86efac;
+  --vp-c-tip-1: #22c55e;
+  --vp-c-tip-2: #22c55e22;
+  --vp-c-tip-3: #22c55e11;
+  --vp-c-warning-1: #f59e0b;
+  --vp-c-warning-2: #f59e0b22;
+  --vp-c-danger-1: #ef4444;
+  --vp-c-danger-2: #ef444422;
+}
+
+/* Force dark mode */
+html { color-scheme: dark; }
+
+/* Nav */
+.VPNav { background: #0a0a0acc !important; border-bottom: 1px solid #1c1c1c !important; }
+.VPNavBarTitle .title { font-weight: 700 !important; letter-spacing: -0.02em; }
+
+/* Sidebar */
+.VPSidebar { background: #0a0a0a !important; border-right: 1px solid #1c1c1c !important; }
+.VPSidebarItem.level-0 > .item .text { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: #404040; font-weight: 500; }
+
+/* Code blocks */
+div[class*='language-'] { border: 1px solid #1c1c1c !important; border-radius: 6px !important; }
+.vp-code-group .tabs { border-bottom: 1px solid #1c1c1c; }
+
+/* Tables */
+.vp-doc table { border-collapse: collapse; }
+.vp-doc th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #525252; border-bottom: 1px solid #1c1c1c; }
+.vp-doc td { border-bottom: 1px solid #111111; color: #a3a3a3; }
+
+/* Custom callout style */
+.vp-doc .tip {
+  background: #0d1a0d;
+  border-left: 3px solid #22c55e;
+  border-radius: 0 4px 4px 0;
+}
+.vp-doc .warning {
+  background: #1a130d;
+  border-left: 3px solid #f59e0b;
+}
+.vp-doc .danger {
+  background: #1a0a0a;
+  border-left: 3px solid #ef4444;
+}
+
+/* Hero section on index page */
+.VPHero .name { font-size: 56px !important; font-weight: 400 !important; letter-spacing: -2px !important; }
+.VPHero .tagline { color: #737373 !important; }
+.VPButton.medium { border-radius: 3px !important; font-family: var(--vp-font-family-mono) !important; font-size: 13px !important; }
+.VPButton.brand { background: #e5e5e5 !important; color: #0a0a0a !important; border: none !important; }
+.VPButton.alt { background: transparent !important; color: #737373 !important; border: 1px solid #262626 !important; }
+
+/* Feature cards */
+.VPFeature { border: 1px solid #1c1c1c !important; border-radius: 6px !important; background: #0d0d0d !important; }
+.VPFeature:hover { border-color: #333 !important; }
+.VPFeature .icon { font-size: 24px !important; }
+.VPFeature .title { font-size: 14px !important; font-weight: 500 !important; }
+.VPFeature .details { font-size: 13px !important; color: #525252 !important; }
+
+/* Inline code */
+.vp-doc :not(pre) > code {
+  background: #111 !important;
+  color: #86efac !important;
+  border: 1px solid #1c1c1c !important;
+  border-radius: 3px !important;
+  font-size: 12px !important;
+}
