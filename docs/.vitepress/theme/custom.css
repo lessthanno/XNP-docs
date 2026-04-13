@@ -79,6 +79,15 @@ div[class*='language-'] { border: 1px solid #1c1c1c !important; border-radius: 6
 .VPFeature .title { font-size: 14px !important; font-weight: 500 !important; }
 .VPFeature .details { font-size: 13px !important; color: #525252 !important; }
 
+/* Doc images — constrain height, never full-page screenshots */
+.vp-doc img {
+  max-height: 480px;
+  width: auto;
+  max-width: 100%;
+  display: block;
+  border: 1px solid #1c1c1c;
+}
+
 /* Inline code */
 .vp-doc :not(pre) > code {
   background: #111 !important;
