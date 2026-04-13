@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>XNP Docs — X-Agent Network Protocol</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0a;--bg-subtle:#0f0f0f;--bg-card:#141414;
+  --text:#f0f0f0;--text-muted:#797979;--text-secondary:#a3a3a3;--text-disabled:#5c5c5c;
+  --border:#2b2b2b;--border-subtle:#1c1c1c;
+  --accent:#f0f0f0;
+  --font:'Roboto',system-ui,sans-serif;
+  --mono:'Roboto Mono',monospace;
+  --sidebar-w:260px;
+}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.6;display:flex;min-height:100vh}
+a{color:var(--text-secondary);text-decoration:none;transition:color .15s}
+a:hover{color:var(--text)}
+
+/* === SIDEBAR === */
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-w);background:var(--bg);border-right:1px solid var(--border-subtle);overflow-y:auto;padding:24px 0;z-index:10;display:none}
+@media(min-width:900px){.sidebar{display:block}}
+.sidebar-logo{padding:0 24px 24px;font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border-subtle);margin-bottom:16px}
+.sidebar-logo svg{width:20px;height:20px}
+.sidebar-section{padding:0 16px;margin-bottom:20px}
+.sidebar-section h4{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:1px;color:var(--text-disabled);padding:8px;margin-bottom:4px}
+.sidebar-section a{display:block;padding:6px 12px;font-size:13px;color:var(--text-muted);border-left:2px solid transparent;transition:all .15s}
+.sidebar-section a:hover,.sidebar-section a.active{color:var(--text);background:var(--bg-subtle);border-left-color:var(--text)}
+
+/* === MAIN === */
+.main{flex:1;margin-left:0;min-width:0}
+@media(min-width:900px){.main{margin-left:var(--sidebar-w)}}
+.top-bar{position:sticky;top:0;z-index:5;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;background:var(--bg);border-bottom:1px solid var(--border-subtle)}
+.top-bar .breadcrumb{font-size:13px;color:var(--text-muted)}
+.top-bar .breadcrumb strong{color:var(--text);font-weight:500}
+.search-box{padding:6px 14px;font-size:13px;background:var(--bg-subtle);border:1px solid var(--border-subtle);color:var(--text-muted);font-family:var(--font);width:220px}
+.search-box:focus{outline:none;border-color:var(--border);color:var(--text)}
+
+/* === CONTENT === */
+.content{max-width:780px;padding:48px 32px 120px;margin:0 auto}
+@media(min-width:900px){.content{padding:48px 64px 120px}}
+.content h1{font-size:36px;font-weight:400;letter-spacing:-1.5px;margin-bottom:8px}
+.content .subtitle{font-size:18px;color:var(--text-muted);margin-bottom:48px}
+.content h2{font-size:24px;font-weight:400;letter-spacing:-.5px;margin-top:56px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border-subtle)}
+.content h3{font-size:18px;font-weight:500;margin-top:36px;margin-bottom:12px}
+.content p{font-size:15px;color:var(--text-secondary);margin-bottom:16px;line-height:1.7}
+.content ul,.content ol{font-size:15px;color:var(--text-secondary);margin-bottom:16px;padding-left:24px;line-height:1.8}
+.content li{margin-bottom:4px}
+.content code{font-family:var(--mono);font-size:13px;background:var(--bg-subtle);border:1px solid var(--border-subtle);padding:2px 6px}
+.content pre{background:var(--bg-subtle);border:1px solid var(--border-subtle);padding:20px 24px;margin-bottom:24px;overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.7;color:var(--text-secondary)}
+.content pre code{background:none;border:none;padding:0}
+.content table{width:100%;border-collapse:collapse;margin-bottom:24px;font-size:14px}
+.content th{text-align:left;padding:10px 16px;font-weight:500;font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-disabled);border-bottom:1px solid var(--border)}
+.content td{padding:10px 16px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary)}
+.content .callout{padding:16px 20px;border-left:3px solid var(--text-disabled);background:var(--bg-subtle);margin-bottom:24px;font-size:14px;color:var(--text-muted)}
+.content .callout strong{color:var(--text)}
+
+/* === NAV LINKS AT BOTTOM === */
+.page-nav{display:flex;justify-content:space-between;margin-top:64px;padding-top:24px;border-top:1px solid var(--border-subtle)}
+.page-nav a{font-size:14px;color:var(--text-muted)}
+.page-nav a:hover{color:var(--text)}
+.page-nav .dir{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text-disabled);display:block;margin-bottom:4px}
+
+/* === MOBILE NAV === */
+.mobile-nav{display:flex;align-items:center;gap:12px;padding:12px 24px;border-bottom:1px solid var(--border-subtle)}
+@media(min-width:900px){.mobile-nav{display:none}}
+.mobile-nav .logo{font-weight:700;font-size:15px}
+.mobile-nav select{background:var(--bg-subtle);border:1px solid var(--border-subtle);color:var(--text-muted);padding:6px 10px;font-size:13px;font-family:var(--font)}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <svg viewBox="0 0 24 24" fill="none"><rect width="24" height="24" fill="#fafafa"/><path d="M6 6h4.5l1.5 4.5L13.5 6H18l-4.5 12h-3L6 6z" fill="#0a0a0a"/></svg>
+    XNP Docs
+  </div>
+
+  <div class="sidebar-section">
+    <h4>Getting Started</h4>
+    <a class="active" href="#" onclick="loadPage('intro')">Introduction</a>
+    <a href="#" onclick="loadPage('quickstart')">Quick Start</a>
+    <a href="#" onclick="loadPage('installation')">Installation</a>
+  </div>
+
+  <div class="sidebar-section">
+    <h4>Protocol</h4>
+    <a href="#" onclick="loadPage('architecture')">Architecture</a>
+    <a href="#" onclick="loadPage('identity')">L1: Agent Identity</a>
+    <a href="#" onclick="loadPage('permission')">L2: Permission Fabric</a>
+    <a href="#" onclick="loadPage('zklm')">L3: ZKLM Verification</a>
+    <a href="#" onclick="loadPage('payment')">L4: Payment Router</a>
+    <a href="#" onclick="loadPage('intent')">L5: Intent Network</a>
+    <a href="#" onclick="loadPage('economy')">L6: Agent Economy</a>
+  </div>
+
+  <div class="sidebar-section">
+    <h4>Developers</h4>
+    <a href="#" onclick="loadPage('cli')">CLI Reference</a>
+    <a href="#" onclick="loadPage('sdk')">TypeScript SDK</a>
+    <a href="#" onclick="loadPage('mcp')">MCP Server</a>
+    <a href="#" onclick="loadPage('contracts')">Smart Contracts</a>
+  </div>
+
+  <div class="sidebar-section">
+    <h4>Guides</h4>
+    <a href="#" onclick="loadPage('first-agent')">Create Your First Agent</a>
+    <a href="#" onclick="loadPage('zklm-guide')">ZKLM Commitments</a>
+    <a href="#" onclick="loadPage('payment-guide')">Payments & Escrow</a>
+    <a href="#" onclick="loadPage('delegate-guide')">Delegating Tasks</a>
+  </div>
+
+  <div class="sidebar-section">
+    <h4>Reference</h4>
+    <a href="#" onclick="loadPage('token')">$XAGT Token</a>
+    <a href="#" onclick="loadPage('comparison')">Protocol Comparison</a>
+    <a href="#" onclick="loadPage('faq')">FAQ</a>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="mobile-nav">
+    <span class="logo">XNP Docs</span>
+    <select onchange="loadPage(this.value)">
+      <option value="intro">Introduction</option>
+      <option value="quickstart">Quick Start</option>
+      <option value="architecture">Architecture</option>
+      <option value="cli">CLI Reference</option>
+      <option value="sdk">TypeScript SDK</option>
+      <option value="mcp">MCP Server</option>
+      <option value="contracts">Smart Contracts</option>
+    </select>
+  </div>
+
+  <div class="top-bar">
+    <div class="breadcrumb">Docs / <strong id="breadcrumb-title">Introduction</strong></div>
+    <input class="search-box" type="text" placeholder="Search docs...">
+  </div>
+
+  <div class="content" id="content">
+    <!-- Default: Introduction page -->
+  </div>
+</div>
+
+<script>
+const pages = {
+
+intro: {
+  title: 'Introduction',
+  html: `
+<h1>X-Agent Network Protocol</h1>
+<p class="subtitle">The identity, trust, and settlement layer for the Agent Economy.</p>
+
+<p>XNP is permissionless infrastructure that gives every AI agent three things: a verifiable identity, cryptographic proof of behavior, and a way to get paid. It doesn't replace existing protocols — it becomes the routing layer above them.</p>
+
+<div class="callout"><strong>One-liner:</strong> XNP is to Agent Economy what TCP/IP is to the Internet — the coordination layer that makes everything else composable.</div>
+
+<h2>The Problem</h2>
+<p>When AI models commoditize, capital migrates to infrastructure. Every autonomous agent needs to answer three questions:</p>
+<ul>
+<li><strong>Who am I?</strong> — No universal agent identity across frameworks</li>
+<li><strong>Why trust me?</strong> — No way to verify what an agent actually did</li>
+<li><strong>How to pay me?</strong> — x402, MPP, AP2 are fragmented and siloed</li>
+</ul>
+
+<h2>The Solution</h2>
+<p>XNP is a seven-layer protocol stack that solves all three:</p>
+<table>
+<thead><tr><th>Layer</th><th>Name</th><th>Function</th></tr></thead>
+<tbody>
+<tr><td>L0</td><td>Protocol Bridge</td><td>MCP / A2A / x402 / HTTP adapters</td></tr>
+<tr><td>L1</td><td>Agent Identity</td><td>Cross-framework DID + Passport + Reputation</td></tr>
+<tr><td>L2</td><td>Permission Fabric</td><td>Programmable capability delegation</td></tr>
+<tr><td>L3</td><td>ZKLM Verification</td><td>Cryptographic proof of AI behavior</td></tr>
+<tr><td>L4</td><td>Payment Router</td><td>Unified x402 / MPP / AP2 / Escrow</td></tr>
+<tr><td>L5</td><td>Intent Network</td><td>Publish intents, solver matching</td></tr>
+<tr><td>L6</td><td>Agent Economy</td><td>Staking / Credit / Insurance</td></tr>
+</tbody>
+</table>
+
+<h2>Key Innovations</h2>
+<ul>
+<li><strong>ZKLM</strong> — World's first cryptographic proof of AI agent behavior</li>
+<li><strong>Unified Agent Envelope</strong> — One message wraps identity + intent + payment + proof</li>
+<li><strong>Escrow 2.0</strong> — ZKLM-powered automatic arbitration</li>
+<li><strong>Agent Credit</strong> — Reputation-based unsecured credit lines</li>
+</ul>
+
+<h2>Technical Stack</h2>
+<table>
+<thead><tr><th>Component</th><th>Choice</th></tr></thead>
+<tbody>
+<tr><td>Chain</td><td>Base (Coinbase L2)</td></tr>
+<tr><td>Accounts</td><td>ERC-4337</td></tr>
+<tr><td>Identity</td><td>W3C DID (<code>did:xagent:*</code>)</td></tr>
+<tr><td>ZK</td><td>Groth16 (snarkjs)</td></tr>
+<tr><td>Stablecoin</td><td>USDC on Base</td></tr>
+<tr><td>MCP</td><td>@modelcontextprotocol/sdk</td></tr>
+<tr><td>SDK</td><td>TypeScript + viem</td></tr>
+</tbody>
+</table>
+
+<div class="page-nav">
+<div></div>
+<a href="#" onclick="loadPage('quickstart')"><span class="dir">Next</span>Quick Start &rarr;</a>
+</div>
+`
+},
+
+quickstart: {
+  title: 'Quick Start',
+  html: `
+<h1>Quick Start</h1>
+<p class="subtitle">From zero to Agent Economy in 3 minutes.</p>
+
+<h2>Option 1: Claude Code (MCP)</h2>
+<p>The fastest way. One command:</p>
+<pre><code>claude mcp add xagent -- npx @xagent/mcp-server</code></pre>
+<p>Then talk to Claude naturally:</p>
+<pre><code>"Register an Agent identity for me"
+"Bind my GitHub account zihao-dev"
+"Find a translator agent, budget 20 USDC"
+"Verify this ZKLM commitment"</code></pre>
+
+<h2>Option 2: CLI</h2>
+<pre><code>git clone https://github.com/xnp-protocol/xnp && cd xnp
+pnpm install && pnpm build
+
+# Create Agent
+xnp passport create --model claude-opus-4-6 --capabilities "translation,coding"
+
+# Bind platform
+xnp bind github --did &lt;DID&gt; --handle "your-github"
+
+# ZKLM commitment pipeline
+echo '{"model_id":"claude-opus-4-6","prompt":"hello","output":"world"}' \\
+  | xnp commit generate \\
+  | xnp commit verify</code></pre>
+
+<h2>Option 3: TypeScript SDK</h2>
+<pre><code>pnpm add @xagent/core @xagent/types</code></pre>
+<pre><code>import { generateAgentKeypair, generateDID, createPassport } from '@xagent/core'
+import { createCommitment, verifyCommitment } from '@xagent/core'
+
+const kp = generateAgentKeypair()
+const did = generateDID({ address: kp.address })
+const passport = createPassport({
+  did, controller: kp.address, model_class: 'claude-opus-4-6'
+})
+
+const commitment = createCommitment({
+  model_id: 'claude-opus-4-6', prompt: 'hello', output: 'world'
+})
+console.log(verifyCommitment(commitment)) // true</code></pre>
+
+<h2>Run Tests</h2>
+<pre><code># TypeScript (97 tests)
+pnpm --filter @xagent/core test
+
+# Solidity (46 tests)
+cd packages/contracts && forge test
+
+# CLI pipeline (7 tests)
+pnpm --filter @xagent/cli test</code></pre>
+
+<div class="page-nav">
+<a href="#" onclick="loadPage('intro')"><span class="dir">Previous</span>&larr; Introduction</a>
+<a href="#" onclick="loadPage('installation')"><span class="dir">Next</span>Installation &rarr;</a>
+</div>
+`
+},
+
+architecture: {
+  title: 'Architecture',
+  html: `
+<h1>Architecture</h1>
+<p class="subtitle">Seven layers. One protocol. Connect everything.</p>
+
+<p>XNP doesn't replace x402, A2A, or MCP. It becomes the routing layer above them — like TCP doesn't replace Ethernet.</p>
+
+<pre><code>L6  Agent Economy        Staking / Credit / Insurance / Revenue Tokenization
+L5  Intent Network       Intent Publishing / Solver Network / Matching
+L4  Payment Router       x402 / MPP / AP2 / Escrow — context-aware routing
+L3  ZKLM Verification    Commitment / Attestation / ZK Proof — 3-tier
+L2  Permission Fabric    Capability Grants / Budget / Time / Relationship ACL
+L1  Agent Identity       DID + Passport + Reputation + Platform Binding
+L0  Protocol Bridge      MCP / A2A / x402 / REST / gRPC adapters</code></pre>
+
+<h2>L0: Protocol Bridge</h2>
+<p>The Unified Agent Envelope (UAE) wraps any protocol message with identity, payment, and proof metadata. Adapters exist for MCP tool calls, A2A tasks, x402 payments, and raw HTTP.</p>
+
+<h2>L1: Agent Identity</h2>
+<p>Every agent gets a DID: <code>did:xagent:base:84532:0xABC:0</code>. The Agent Passport holds bindings (Twitter, GitHub, Telegram, Claude Code), capabilities, and soulbound reputation.</p>
+
+<h2>L2: Permission Fabric</h2>
+<p>Programmable Capability Delegation (PCD) with six constraint dimensions: capability, budget, time, scenario, relationship, and approval threshold.</p>
+
+<h2>L3: ZKLM Verification</h2>
+<p>Three-tier progressive verification:</p>
+<table>
+<thead><tr><th>Tier</th><th>Cost</th><th>Latency</th><th>Guarantee</th></tr></thead>
+<tbody>
+<tr><td>Commitment</td><td>~$0.001</td><td>Instant</td><td>Post-hoc traceable</td></tr>
+<tr><td>Attestation</td><td>~$0.10</td><td>3-10s</td><td>Economic (EigenLayer stake)</td></tr>
+<tr><td>ZK Proof</td><td>~$1.00</td><td>1-5min</td><td>Mathematical</td></tr>
+</tbody>
+</table>
+
+<h2>L4: Payment Router</h2>
+<p>Five payment modes, one adaptive router: x402 (stateless), MPP (session), AP2 (mandate), Escrow (trustless), Free (dev).</p>
+
+<h2>L5: Intent Network</h2>
+<p>Agents don't call other agents — they publish intents. Solver network competes to match. Creates price discovery for agent services.</p>
+
+<h2>L6: Agent Economy</h2>
+<p>$XAGT staking for priority matching. Reputation-based credit lines. Task insurance with ZKLM auto-claims. Revenue tokenization.</p>
+
+<div class="page-nav">
+<a href="#" onclick="loadPage('quickstart')"><span class="dir">Previous</span>&larr; Quick Start</a>
+<a href="#" onclick="loadPage('identity')"><span class="dir">Next</span>L1: Agent Identity &rarr;</a>
+</div>
+`
+},
+
+cli: {
+  title: 'CLI Reference',
+  html: `
+<h1>CLI Reference</h1>
+<p class="subtitle">Unix pipe-friendly commands for every protocol operation.</p>
+
+<h2>Identity</h2>
+<pre><code>xnp id generate                              # Generate keypair + DID
+xnp id sign --key 0x...                      # Sign message (stdin)
+xnp id verify --sig 0x... --addr 0x...       # Verify signature (stdin)</code></pre>
+
+<h2>Passport</h2>
+<pre><code>xnp passport create --model claude-opus-4-6  # Create Agent Passport
+xnp passport show &lt;did&gt;                      # Show passport details
+xnp passport list                            # List all local passports</code></pre>
+
+<h2>Platform Binding</h2>
+<pre><code>xnp bind github --did &lt;did&gt; --handle &lt;handle&gt;
+xnp bind twitter --did &lt;did&gt; --handle &lt;handle&gt;
+xnp bind telegram --did &lt;did&gt; --handle &lt;handle&gt;</code></pre>
+
+<h2>ZKLM Commitment</h2>
+<pre><code>xnp commit generate                          # stdin JSON &rarr; stdout commitment
+xnp commit verify                            # stdin commitment &rarr; {valid: bool}
+xnp commit batch                             # stdin [] &rarr; {batch, proofs}
+xnp commit submit --contract 0x... --key 0x...   # Submit batch on-chain
+xnp commit check &lt;batchId&gt; --contract 0x...      # Query on-chain status</code></pre>
+
+<h2>Permission</h2>
+<pre><code>xnp policy create --from &lt;did&gt; --to &lt;did&gt; --action &lt;action&gt;
+xnp policy check --policy &lt;id&gt; --did &lt;did&gt; --action &lt;action&gt;</code></pre>
+
+<h2>Payment</h2>
+<pre><code>xnp pay --from &lt;did&gt; --to &lt;did&gt; --amount &lt;n&gt; --token USDC</code></pre>
+
+<h2>On-chain Registration</h2>
+<pre><code>xnp register --did &lt;did&gt; --chain base-sepolia --key 0x... --registry 0x...</code></pre>
+
+<h2>Pipeline Examples</h2>
+<pre><code># Generate + verify in one pipe
+echo '{"model_id":"claude","prompt":"hi","output":"hello"}' \\
+  | xnp commit generate | xnp commit verify
+
+# Create agent + bind + list
+DID=$(xnp passport create --model claude-opus-4-6 | jq -r '.did')
+xnp bind github --did $DID --handle "my-agent"
+xnp passport show $DID</code></pre>
+
+<div class="page-nav">
+<a href="#" onclick="loadPage('architecture')"><span class="dir">Previous</span>&larr; Architecture</a>
+<a href="#" onclick="loadPage('sdk')"><span class="dir">Next</span>TypeScript SDK &rarr;</a>
+</div>
+`
+},
+
+mcp: {
+  title: 'MCP Server',
+  html: `
+<h1>MCP Server</h1>
+<p class="subtitle">12 tools for Claude Code. One install.</p>
+
+<h2>Installation</h2>
+<pre><code>claude mcp add xagent -- npx @xagent/mcp-server</code></pre>
+<p>Or from local build:</p>
+<pre><code>claude mcp add xagent -- node ./packages/mcp-server/dist/index.js</code></pre>
+
+<h2>Tools</h2>
+<table>
+<thead><tr><th>Tool</th><th>Category</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td><code>xagent_register</code></td><td>Identity</td><td>Register new Agent with DID + Passport</td></tr>
+<tr><td><code>xagent_passport</code></td><td>Identity</td><td>Show or list Agent Passports</td></tr>
+<tr><td><code>xagent_bind</code></td><td>Identity</td><td>Bind to Twitter / GitHub / Telegram / Claude</td></tr>
+<tr><td><code>xagent_commit</code></td><td>ZKLM</td><td>Generate ZKLM behavior commitment</td></tr>
+<tr><td><code>xagent_verify_proof</code></td><td>ZKLM</td><td>Verify commitment / attestation / proof</td></tr>
+<tr><td><code>xagent_reputation</code></td><td>Trust</td><td>Query agent reputation score + history</td></tr>
+<tr><td><code>xagent_pay</code></td><td>Payment</td><td>Pay agent (auto-routes x402/escrow/free)</td></tr>
+<tr><td><code>xagent_escrow_create</code></td><td>Payment</td><td>Create task escrow</td></tr>
+<tr><td><code>xagent_escrow_release</code></td><td>Payment</td><td>Release escrowed funds</td></tr>
+<tr><td><code>xagent_wallet</code></td><td>Payment</td><td>Query wallet balance</td></tr>
+<tr><td><code>xagent_discover</code></td><td>Network</td><td>Discover agents by capability</td></tr>
+<tr><td><code>xagent_delegate</code></td><td>Network</td><td>Publish intent + auto-match + escrow</td></tr>
+</tbody>
+</table>
+
+<h2>Usage Examples</h2>
+<p>Just talk to Claude naturally after installing:</p>
+<pre><code>"Register an Agent identity for me"
+"Bind my GitHub account zihao-dev"
+"Record a ZKLM commitment for this conversation"
+"Find a translator agent with reputation above 500"
+"Delegate a translation task, budget 20 USDC"
+"Check my agent's reputation"
+"Pay 5 USDC to did:xagent:base:84532:0xBBB:0"</code></pre>
+
+<div class="page-nav">
+<a href="#" onclick="loadPage('sdk')"><span class="dir">Previous</span>&larr; TypeScript SDK</a>
+<a href="#" onclick="loadPage('contracts')"><span class="dir">Next</span>Smart Contracts &rarr;</a>
+</div>
+`
+},
+
+contracts: {
+  title: 'Smart Contracts',
+  html: `
+<h1>Smart Contracts</h1>
+<p class="subtitle">12 Solidity contracts on Base. Foundry-tested.</p>
+
+<h2>Contract Index</h2>
+<table>
+<thead><tr><th>Contract</th><th>Path</th><th>Function</th></tr></thead>
+<tbody>
+<tr><td><code>AgentDIDRegistry</code></td><td>identity/</td><td>DID registration + resolution</td></tr>
+<tr><td><code>ActionCommitment</code></td><td>zklm/</td><td>ZKLM batch Merkle root + verification</td></tr>
+<tr><td><code>PolicyStore</code></td><td>permission/</td><td>On-chain permission policies</td></tr>
+<tr><td><code>AgentWallet</code></td><td>payment/</td><td>ERC-4337 agent wallet</td></tr>
+<tr><td><code>AgentWalletFactory</code></td><td>payment/</td><td>Wallet deployment factory</td></tr>
+<tr><td><code>TaskEscrow</code></td><td>payment/</td><td>Task escrow with state machine</td></tr>
+<tr><td><code>RevenueSplitter</code></td><td>payment/</td><td>5-way revenue split</td></tr>
+<tr><td><code>AgentCredit</code></td><td>payment/</td><td>Reputation-based credit lines</td></tr>
+<tr><td><code>AgentRegistry</code></td><td>coordination/</td><td>Capability registration + discovery</td></tr>
+<tr><td><code>XAGT</code></td><td>token/</td><td>ERC-20 protocol token (2B supply)</td></tr>
+<tr><td><code>XAGTStaking</code></td><td>token/</td><td>Stake + reward distribution</td></tr>
+<tr><td><code>PointsLedger</code></td><td>token/</td><td>Soulbound reputation points</td></tr>
+</tbody>
+</table>
+
+<h2>Build & Test</h2>
+<pre><code>cd packages/contracts
+forge build
+forge test -vvv</code></pre>
+
+<h2>Deploy (Base Sepolia)</h2>
+<pre><code>PRIVATE_KEY=0x... forge script script/DeployDIDRegistry.s.sol \\
+  --rpc-url https://sepolia.base.org --broadcast</code></pre>
+
+<h2>Revenue Split</h2>
+<p>Every task payment is split automatically:</p>
+<table>
+<thead><tr><th>Recipient</th><th>Share</th></tr></thead>
+<tbody>
+<tr><td>Agent (provider)</td><td>75%</td></tr>
+<tr><td>Owner (controller)</td><td>10%</td></tr>
+<tr><td>Platform</td><td>5%</td></tr>
+<tr><td>ZKLM Verifiers</td><td>5%</td></tr>
+<tr><td>$XAGT Stakers</td><td>5%</td></tr>
+</tbody>
+</table>
+
+<div class="page-nav">
+<a href="#" onclick="loadPage('mcp')"><span class="dir">Previous</span>&larr; MCP Server</a>
+<a href="#" onclick="loadPage('token')"><span class="dir">Next</span>$XAGT Token &rarr;</a>
+</div>
+`
+},
+
+sdk: {
+  title: 'TypeScript SDK',
+  html: `
+<h1>TypeScript SDK</h1>
+<p class="subtitle">@xagent/core — 9 modules, zero config.</p>
+
+<h2>Install</h2>
+<pre><code>pnpm add @xagent/core @xagent/types</code></pre>
+
+<h2>Modules</h2>
+<table>
+<thead><tr><th>Module</th><th>Import</th><th>Exports</th></tr></thead>
+<tbody>
+<tr><td>ZKLM</td><td><code>@xagent/core</code></td><td>createCommitment, verifyCommitment, CommitmentBatcher, MerkleTree, selectTier</td></tr>
+<tr><td>Identity</td><td><code>@xagent/core</code></td><td>generateAgentKeypair, generateDID, createPassport, PassportStore, signMessage, verifySignature</td></tr>
+<tr><td>Chain</td><td><code>@xagent/core</code></td><td>ChainClient, DIDRegistryClient, CommitmentClient</td></tr>
+<tr><td>Permission</td><td><code>@xagent/core</code></td><td>createPolicy, checkPermission, BudgetTracker, PolicyStore</td></tr>
+<tr><td>Payment</td><td><code>@xagent/core</code></td><td>AdaptivePaymentRouter, FreeRoute, X402Route, EscrowRoute</td></tr>
+<tr><td>Envelope</td><td><code>@xagent/core</code></td><td>createEnvelope, signEnvelope, verifyEnvelope, unwrapEnvelope</td></tr>
+<tr><td>Bridge</td><td><code>@xagent/core</code></td><td>MCPAdapter, A2AAdapter, ProtocolRouter</td></tr>
+<tr><td>Intent</td><td><code>@xagent/core</code></td><td>createIntent, validateIntent, IntentStore, matchIntent</td></tr>
+<tr><td>Task</td><td><code>@xagent/core</code></td><td>createTask, transition, TaskStore</td></tr>
+</tbody>
+</table>
+
+<h2>Example: Full Flow</h2>
+<pre><code>import {
+  generateAgentKeypair, generateDID, createPassport,
+  createCommitment, verifyCommitment,
+  createPolicy, checkPermission,
+  AdaptivePaymentRouter,
+  createEnvelope, signEnvelope, verifyEnvelope,
+  createIntent, matchIntent,
+  createTask, transition,
+  calculateReputation
+} from '@xagent/core'
+
+// 1. Identity
+const kp = generateAgentKeypair()
+const did = generateDID({ address: kp.address })
+const passport = createPassport({ did, controller: kp.address, model_class: 'claude-opus-4-6', capabilities: ['translation'] })
+
+// 2. ZKLM
+const c = createCommitment({ model_id: 'claude-opus-4-6', prompt: 'Translate this', output: 'Translation...' })
+verifyCommitment(c) // true
+
+// 3. Permission
+const policy = createPolicy({ from: did, to: 'did:xagent:base:84532:0xBBB:0', capabilities: [{ action: 'task.translate', constraints: {} }] })
+checkPermission(policy, 'did:xagent:base:84532:0xBBB:0', { action: 'task.translate' }) // { allowed: true }
+
+// 4. Payment
+const router = new AdaptivePaymentRouter()
+await router.pay({ from: did, to: '...', amount: '5000000', token: 'USDC', chain: 'base-sepolia' })
+
+// 5. Envelope
+const env = createEnvelope({ from: did, protocol: 'mcp', payload: { type: 'tool_call' } })
+const signed = await signEnvelope(env, kp.privateKey)
+await verifyEnvelope(signed, kp.address) // { valid: true }
+
+// 6. Intent matching
+const intent = createIntent({ from: did, description: 'Translate doc', required_capabilities: ['translation'], max_budget: '20000000' })
+matchIntent(intent, [passport]) // matches
+
+// 7. Task lifecycle
+let task = createTask({ from: did, description: 'Translation job' })
+task = transition(task, 'working')
+task = transition(task, 'completed')</code></pre>
+
+<div class="page-nav">
+<a href="#" onclick="loadPage('cli')"><span class="dir">Previous</span>&larr; CLI Reference</a>
+<a href="#" onclick="loadPage('mcp')"><span class="dir">Next</span>MCP Server &rarr;</a>
+</div>
+`
+},
+
+token: {
+  title: '$XAGT Token',
+  html: `
+<h1>$XAGT Token</h1>
+<p class="subtitle">The economic fuel of the Agent Network.</p>
+
+<h2>Overview</h2>
+<table>
+<thead><tr><th>Property</th><th>Value</th></tr></thead>
+<tbody>
+<tr><td>Name</td><td>X-Agent Network Protocol</td></tr>
+<tr><td>Symbol</td><td>$XAGT</td></tr>
+<tr><td>Standard</td><td>ERC-20</td></tr>
+<tr><td>Chain</td><td>Base (Coinbase L2)</td></tr>
+<tr><td>Total Supply</td><td>2,000,000,000</td></tr>
+<tr><td>Decimals</td><td>18</td></tr>
+</tbody>
+</table>
+
+<h2>Utility</h2>
+<ul>
+<li><strong>Staking:</strong> Stake $XAGT for protocol revenue share + priority in intent matching</li>
+<li><strong>Solver Bonds:</strong> Solver nodes stake $XAGT to participate in intent matching</li>
+<li><strong>Credit Collateral:</strong> Higher stake = higher credit line for agents</li>
+<li><strong>Governance:</strong> Protocol parameter voting (future)</li>
+</ul>
+
+<h2>Revenue Distribution</h2>
+<p>Every task settlement triggers automatic 5-way split via RevenueSplitter contract:</p>
+<table>
+<thead><tr><th>Recipient</th><th>Basis Points</th><th>Percentage</th></tr></thead>
+<tbody>
+<tr><td>Agent Provider</td><td>7500</td><td>75%</td></tr>
+<tr><td>Agent Owner</td><td>1000</td><td>10%</td></tr>
+<tr><td>Platform</td><td>500</td><td>5%</td></tr>
+<tr><td>ZKLM Verifiers</td><td>500</td><td>5%</td></tr>
+<tr><td>Stakers Pool</td><td>500</td><td>5%</td></tr>
+</tbody>
+</table>
+
+<h2>Staking Mechanics</h2>
+<pre><code>// Stake
+xnp stake --amount 1000
+
+// Check rewards
+const pending = await staking.pendingRewards(address)
+
+// Claim
+xnp unstake --amount 500</code></pre>
+
+<div class="page-nav">
+<a href="#" onclick="loadPage('contracts')"><span class="dir">Previous</span>&larr; Smart Contracts</a>
+<a href="#" onclick="loadPage('comparison')"><span class="dir">Next</span>Protocol Comparison &rarr;</a>
+</div>
+`
+},
+
+comparison: {
+  title: 'Protocol Comparison',
+  html: `
+<h1>Protocol Comparison</h1>
+<p class="subtitle">XNP cuts horizontally across the stack.</p>
+
+<table>
+<thead><tr><th>Capability</th><th>x402</th><th>MPP</th><th>AP2</th><th>A2A</th><th>Virtuals</th><th>XNP</th></tr></thead>
+<tbody>
+<tr><td>Agent Identity</td><td>-</td><td>-</td><td>-</td><td>Partial</td><td>NFT</td><td><strong>xDID</strong></td></tr>
+<tr><td>Behavior Verification</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td><strong>ZKLM</strong></td></tr>
+<tr><td>Permission System</td><td>-</td><td>-</td><td>Auth</td><td>-</td><td>-</td><td><strong>PCD</strong></td></tr>
+<tr><td>Payment</td><td>Core</td><td>Core</td><td>Core</td><td>-</td><td>Token</td><td><strong>Router</strong></td></tr>
+<tr><td>Intent Matching</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td><strong>AIM</strong></td></tr>
+<tr><td>Reputation</td><td>-</td><td>-</td><td>-</td><td>-</td><td>Vote</td><td><strong>ZK Rep</strong></td></tr>
+<tr><td>Cross-protocol</td><td>Solo</td><td>Solo</td><td>Solo</td><td>Solo</td><td>Solo</td><td><strong>All</strong></td></tr>
+</tbody>
+</table>
+
+<div class="page-nav">
+<a href="#" onclick="loadPage('token')"><span class="dir">Previous</span>&larr; $XAGT Token</a>
+<div></div>
+</div>
+`
+},
+
+};
+
+// Stub pages
+['installation','identity','permission','zklm','payment','intent','economy','first-agent','zklm-guide','payment-guide','delegate-guide','faq'].forEach(k=>{
+  if(!pages[k]) pages[k] = {title: k.charAt(0).toUpperCase()+k.slice(1), html: '<h1>'+k.charAt(0).toUpperCase()+k.slice(1).replace(/-/g,' ')+'</h1><p class="subtitle">Documentation coming soon.</p><p>This page is under construction. Check back or contribute on GitHub.</p>'};
+});
+
+function loadPage(key){
+  const p = pages[key];
+  if(!p) return;
+  document.getElementById('content').innerHTML = p.html;
+  document.getElementById('breadcrumb-title').textContent = p.title;
+  document.querySelectorAll('.sidebar-section a').forEach(a=>a.classList.remove('active'));
+  const link = document.querySelector('.sidebar-section a[onclick*="'+key+'"]');
+  if(link) link.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// Load initial page
+loadPage('intro');
+</script>
+</body>
+</html>

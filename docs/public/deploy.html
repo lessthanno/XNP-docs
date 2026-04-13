@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>XNP v1 — Deploy to Base Sepolia</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0a0a0a; color: #f5f5f5; font-family: 'SF Mono', monospace; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; padding: 48px 16px; }
+  .card { width: 100%; max-width: 560px; }
+  h1 { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+  .sub { color: #737373; font-size: 12px; margin-bottom: 32px; }
+  .step { background: #111; border: 1px solid #222; border-radius: 4px; padding: 20px; margin-bottom: 12px; }
+  .step-title { font-size: 13px; font-weight: 600; margin-bottom: 8px; color: #e5e5e5; }
+  .step-desc { font-size: 11px; color: #737373; margin-bottom: 14px; line-height: 1.6; }
+  button { padding: 10px 20px; font-size: 13px; font-weight: 500; border: none; border-radius: 3px; cursor: pointer; font-family: inherit; transition: opacity 0.15s; }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-primary { background: #f5f5f5; color: #0a0a0a; }
+  .btn-success { background: #166534; color: #86efac; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 2px; font-size: 10px; font-weight: 600; margin-left: 8px; vertical-align: middle; }
+  .tag-pending { background: #27272a; color: #a1a1aa; }
+  .tag-ok { background: #14532d; color: #86efac; }
+  .tag-err { background: #450a0a; color: #fca5a5; }
+  .addr { font-size: 11px; color: #4ade80; background: #0f1a0f; padding: 8px 12px; border-radius: 3px; margin-top: 10px; word-break: break-all; border: 1px solid #1a3a1a; }
+  .log { font-size: 11px; color: #a3a3a3; background: #0f0f0f; padding: 12px; border-radius: 3px; margin-top: 10px; max-height: 140px; overflow-y: auto; white-space: pre-wrap; border: 1px solid #1a1a1a; }
+  .result { background: #0d1f17; border: 1px solid #1a4a2a; border-radius: 4px; padding: 20px; margin-top: 16px; display: none; }
+  .result h2 { font-size: 14px; color: #4ade80; margin-bottom: 16px; }
+  .copy-btn { background: #1a1a1a; color: #a3a3a3; border: 1px solid #2a2a2a; padding: 4px 10px; font-size: 10px; border-radius: 2px; cursor: pointer; margin-left: 8px; }
+  .copy-btn:hover { background: #2a2a2a; }
+  #network-warn { display:none; background: #450a0a; border: 1px solid #7f1d1d; border-radius: 3px; padding: 10px 14px; font-size: 12px; color: #fca5a5; margin-bottom: 12px; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>XNP v1 Deployment</h1>
+  <p class="sub">Deploy to Base Sepolia — connect your wallet, click deploy, sign twice</p>
+
+  <div id="network-warn">⚠ Switch to Base Sepolia (chain ID 84532) first</div>
+
+  <!-- Step 1: Connect -->
+  <div class="step">
+    <div class="step-title">1. Connect Wallet <span id="tag-connect" class="tag tag-pending">pending</span></div>
+    <div class="step-desc">Connect MetaMask or OKX Wallet. Make sure you're on Base Sepolia network.</div>
+    <button class="btn-primary" id="btn-connect" onclick="connectWallet()">Connect Wallet</button>
+    <div id="addr-display" style="display:none" class="addr"></div>
+  </div>
+
+  <!-- Step 2: Deploy -->
+  <div class="step">
+    <div class="step-title">2. Deploy Contracts <span id="tag-deploy" class="tag tag-pending">pending</span></div>
+    <div class="step-desc">Deploys AgentDIDRegistry + ActionCommitment to Base Sepolia.<br>You'll sign 2 transactions in your wallet.</div>
+    <button class="btn-primary" id="btn-deploy" onclick="deployContracts()" disabled>Deploy (2 txns)</button>
+    <div id="deploy-log" class="log" style="display:none"></div>
+  </div>
+
+  <!-- Result -->
+  <div class="result" id="result-box">
+    <h2>✓ Deployment Complete</h2>
+    <div style="margin-bottom:8px; font-size:12px; color:#737373;">AgentDIDRegistry</div>
+    <div class="addr" id="addr-did"></div>
+    <div style="margin-top:12px; margin-bottom:8px; font-size:12px; color:#737373;">ActionCommitment</div>
+    <div class="addr" id="addr-ac"></div>
+    <div style="margin-top:16px; font-size:11px; color:#737373;">
+      Copy these addresses and send them to Claude to complete the setup.
+    </div>
+    <button class="copy-btn" style="margin-top:12px" onclick="copyAll()">Copy Both Addresses</button>
+  </div>
+</div>
+
+<script>
+const BASE_SEPOLIA_CHAIN_ID = '0x14A34'; // 84532
+const DID_BYTECODE = '0x6080604052348015600e575f5ffd5b50610a968061001c5f395ff3fe608060405234801561000f575f5ffd5b5060043610610060575f3560e01c806327258b2214610064578063485a94581461009e5780635c23bdf5146100be578063736dec39146100de5780638f1815b2146100f3578063cf2d31fb1461011e575b5f5ffd5b6100896100723660046106c7565b5f9081526020819052604090206005015460ff1690565b60405190151581526020015b60405180910390f35b6100b16100ac3660046106de565b610131565b604051610095919061070b565b6100d16100cc3660046106c7565b61019a565b6040516100959190610787565b6100f16100ec366004610826565b610351565b005b6101066101013660046106c7565b610469565b6040516001600160a01b039091168152602001610095565b6100f161012c366004610846565b6104b7565b6001600160a01b0381165f9081526001602090815260409182902080548351818402810184019094528084526060939283018282801561018e57602002820191905f5260205f20905b81548152602001906001019080831161017a575b50505050509050919050565b6101da6040518060c001604052805f6001600160a01b0316815260200160608152602001606081526020015f81526020015f81526020015f151581525090565b5f82815260208190526040902060050154829060ff166102155760405162461bcd60e51b815260040161020c906108bd565b60405180910390fd5b5f8381526020818152604091829020825160c0810190935280546001600160a01b03168352600181018054919284019161024e906108e5565b80601f016020809104026020016040519081016040528092919081815260200182805461027a906108e5565b80156102c55780601f1061029c576101008083540402835291602001916102c5565b820191905f5260205f20905b8154815290600101906020018083116102a857829003601f168201915b505050505081526020016002820180548060200260200160405190810160405280929190818152602001828054801561031b57602002820191905f5260205f20905b815481526020019060010190808311610307575b5050509183525050600382015460208201526004820154604082015260059091015460ff16151560609091015291505b50919050565b5f8281526020819052604090205482906001600160a01b031633146103a95760405162461bcd60e51b815260206004820152600e60248201526d2737ba1031b7b73a3937b63632b960911b604482015260640161020c565b5f83815260208190526040902060050154839060ff166103db5760405162461bcd60e51b815260040161020c906108bd565b5f84815260208181526040808320600201805460018101825590845291909220018490555184907f1a767a6f4b1ececed3e1fe688b2c06c432b39b48ab0ce26d85c6e5d34715820d906104319086815260200190565b60405180910390a260405184907f66549f5c7da641c8d781ba2c9588004e1bfed001e0c81a34a5b9e39720e18176905f90a250505050565b5f81815260208190526040812060050154829060ff1661049b5760405162461bcd60e51b815260040161020c906108bd565b50505f908152602081905260409020546001600160a01b031690565b5f8381526020819052604090206005015460ff161561050d5760405162461bcd60e51b8152602060048201526012602482015271105b1c9958591e481c9959da5cdd195c995960721b604482015260640161020c565b6040518060c00160405280336001600160a01b0316815260200183838080601f0160208091040260200160405190810160405280939291908181526020018383808284375f9201829052509385525050604080518381526020808201835280860191909152818501849052426060860152600160809095018590528884528381529220845181546001600160a01b0319166001600160a01b039091161781559184015191928301916105c0915082610977565b50604082015180516105dc91600284019160209091019061066a565b50606082015160038201556080820151600482015560a0909101516005909101805460ff1916911515919091179055335f8181526001602081815260408084208054938401815584529220018590555184907f186c9e760261cf9d36dfc9a09ca598dbff789d7d4201868118b92d46e56dac809061065d9086908690610a32565b60405180910390a3505050565b828054828255905f5260205f209081019282156106a3579160200282015b828111156106a3578251825591602001919060010190610688565b506106af9291506106b3565b5090565b5b808211156106af575f81556001016106b4565b5f602082840312156106d7575f5ffd5b5035919050565b5f602082840312156106ee575f5ffd5b81356001600160a01b0381168114610704575f5ffd5b9392505050565b602080825282518282018190525f918401906040840190835b81811015610742578351835260209384019390920191600101610724565b509095945050505050565b5f8151808452602084019350602083015f5b8281101561077d57815186526020958601959091019060010161075f565b5093949350505050565b602080825282516001600160a01b0316828201528281015160c06040840152805160e084018190525f928190830161010086015e5f6101008286010152601f19601f82011684019150506040840151601f19610100858403010160608501526107f461010083018261074d565b91505060608401516080840152608084015160a084015260a084015161081e60c085018215159052565b509392505050565b5f5f60408385031215610837575f5ffd5b50508035926020909101359150565b5f5f5f60408486031215610858575f5ffd5b83359250602084013567ffffffffffffffff811115610875575f5ffd5b8401601f81018613610885575f5ffd5b803567ffffffffffffffff81111561089b575f5ffd5b8660208284010111156108ac575f5ffd5b939660209190910195509293505050565b6020808252600e908201526d139bdd081c9959da5cdd195c995960921b604082015260600190565b600181811c908216806108f957607f821691505b60208210810361034b57634e487b7160e01b5f52602260045260245ffd5b634e487b7160e01b5f52604160045260245ffd5b601f82111561097257805f5260205f20601f840160051c810160208510156109505750805b601f840160051c820191505b8181101561096f575f815560010161095c565b50505b505050565b815167ffffffffffffffff81111561099157610991610917565b6109a58161099f84546108e5565b8461092b565b6020601f8211600181146109d7575f83156109c05750848201515b5f19600385901b1c1916600184901b17845561096f565b5f84815260208120601f198516915b82811015610a0657878501518255602094850194600190920191016109e6565b5084821015610a2357868401515f19600387901b60f8161c191681555b50505050600190811b01905550565b60208152816020820152818360408301375f818301604090810191909152601f909201601f1916010191905056fea264697066735822122028b615818e16fd17a98e3f796f91a3c43b58da4fba607591f0bb1e19e15c6ccb64736f6c634300081b0033';
+const AC_BYTECODE = '0x6080604052348015600e575f5ffd5b506105308061001c5f395ff3fe608060405234801561000f575f5ffd5b506004361061004a575f3560e01c806306f130561461004e5780635ac44282146100645780635e1b743c146100b3578063caf79310146100d6575b5f5ffd5b5f545b6040519081526020015b60405180910390f35b61007761007236600461040a565b6100e9565b60405161005b9190815181526020808301516001600160a01b031690820152604080830151908201526060918201519181019190915260800190565b6100c66100c1366004610421565b6101c1565b604051901515815260200161005b565b6100516100e43660046104a7565b6102da565b61011960405180608001604052805f81526020015f6001600160a01b031681526020015f81526020015f81525090565b5f5482106101605760405162461bcd60e51b815260206004820152600f60248201526e10985d18da081b9bdd08199bdd5b99608a1b60448201526064015b60405180910390fd5b5f8281548110610172576101726104c7565b5f9182526020918290206040805160808101825260049093029091018054835260018101546001600160a01b031693830193909352600283015490820152600390910154606082015292915050565b5f805486106102045760405162461bcd60e51b815260206004820152600f60248201526e10985d18da081b9bdd08199bdd5b99608a1b6044820152606401610157565b5f5f8781548110610217576102176104c7565b5f91825260208220600490910201549150869084905b868110156102cd575f888883818110610248576102486104c7565b9050602002013590508084101561028a5760408051602081018690529081018290526060016040516020818303038152906040528051906020012093506102b7565b60408051602081018390529081018590526060016040516020818303038152906040528051906020012093505b6102c26002846104db565b92505060010161022d565b5050149695505050505050565b5f805460408051608081018252858152336020808301828152428486019081526060850189815260018801895597805293517f290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e563600488029081019190915590517f290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e564820180546001600160a01b0319166001600160a01b0390921691909117905592517f290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e56584015594517f290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e566909201919091558151868152938401859052919283917fae945602aa104f32f246a264bba8d563165c8ba6e5cb90e3edbfbb12d00a9653910160405180910390a392915050565b5f6020828403121561041a575f5ffd5b5035919050565b5f5f5f5f5f60808688031215610435575f5ffd5b8535945060208601359350604086013567ffffffffffffffff811115610459575f5ffd5b8601601f81018813610469575f5ffd5b803567ffffffffffffffff81111561047f575f5ffd5b8860208260051b8401011115610493575f5ffd5b959894975060200195606001359392505050565b5f5f604083850312156104b8575f5ffd5b50508035926020909101359150565b634e487b7160e01b5f52603260045260245ffd5b5f826104f557634e487b7160e01b5f52601260045260245ffd5b50049056fea26469706673582212202c1b435623dec74ffb514c69b2bad190ce2014d2a628e6111b17742056ea0ce664736f6c634300081b0033';
+
+let provider, signer, account;
+
+function log(msg) {
+  const el = document.getElementById('deploy-log');
+  el.style.display = 'block';
+  el.textContent += msg + '\n';
+  el.scrollTop = el.scrollHeight;
+}
+
+function tag(id, status, label) {
+  const el = document.getElementById('tag-' + id);
+  el.className = 'tag tag-' + status;
+  el.textContent = label;
+}
+
+async function connectWallet() {
+  if (!window.ethereum) { alert('No wallet found. Install MetaMask or OKX Wallet.'); return; }
+  try {
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    account = accounts[0];
+
+    // Check / switch network
+    const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+    if (chainId !== BASE_SEPOLIA_CHAIN_ID) {
+      document.getElementById('network-warn').style.display = 'block';
+      try {
+        await window.ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: BASE_SEPOLIA_CHAIN_ID }],
+        });
+        document.getElementById('network-warn').style.display = 'none';
+      } catch (switchErr) {
+        // Add network if not found
+        if (switchErr.code === 4902) {
+          await window.ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [{
+              chainId: BASE_SEPOLIA_CHAIN_ID,
+              chainName: 'Base Sepolia',
+              nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
+              rpcUrls: ['https://sepolia.base.org'],
+              blockExplorerUrls: ['https://sepolia.basescan.org'],
+            }],
+          });
+          document.getElementById('network-warn').style.display = 'none';
+        } else {
+          return;
+        }
+      }
+    }
+
+    document.getElementById('addr-display').textContent = account;
+    document.getElementById('addr-display').style.display = 'block';
+    document.getElementById('btn-connect').textContent = 'Connected';
+    document.getElementById('btn-connect').className = 'btn-success';
+    document.getElementById('btn-deploy').disabled = false;
+    tag('connect', 'ok', 'connected');
+  } catch(e) {
+    tag('connect', 'err', 'failed');
+    alert(e.message);
+  }
+}
+
+async function deployContracts() {
+  document.getElementById('btn-deploy').disabled = true;
+  tag('deploy', 'pending', 'deploying...');
+
+  try {
+    // Deploy AgentDIDRegistry
+    log('Deploying AgentDIDRegistry...');
+    const didAddr = await deployContract(DID_BYTECODE, 'AgentDIDRegistry');
+    log('✓ AgentDIDRegistry: ' + didAddr);
+
+    // Deploy ActionCommitment
+    log('Deploying ActionCommitment...');
+    const acAddr = await deployContract(AC_BYTECODE, 'ActionCommitment');
+    log('✓ ActionCommitment: ' + acAddr);
+
+    // Show result
+    document.getElementById('addr-did').textContent = didAddr;
+    document.getElementById('addr-ac').textContent = acAddr;
+    document.getElementById('result-box').style.display = 'block';
+    tag('deploy', 'ok', 'deployed ✓');
+    log('\nAll done! Copy the addresses above.');
+  } catch(e) {
+    tag('deploy', 'err', 'failed');
+    log('Error: ' + e.message);
+    document.getElementById('btn-deploy').disabled = false;
+  }
+}
+
+async function deployContract(bytecode, name) {
+  const txHash = await window.ethereum.request({
+    method: 'eth_sendTransaction',
+    params: [{
+      from: account,
+      data: bytecode,
+      gas: '0x3D0900', // 4M gas limit
+    }],
+  });
+  log(name + ' tx: ' + txHash);
+
+  // Wait for receipt
+  let receipt = null;
+  let attempts = 0;
+  while (!receipt && attempts < 60) {
+    await new Promise(r => setTimeout(r, 2000));
+    receipt = await window.ethereum.request({
+      method: 'eth_getTransactionReceipt',
+      params: [txHash],
+    });
+    attempts++;
+    if (attempts % 5 === 0) log('Waiting for confirmation...');
+  }
+
+  if (!receipt) throw new Error('Timeout waiting for ' + name);
+  if (receipt.status === '0x0') throw new Error(name + ' deployment failed');
+  return receipt.contractAddress;
+}
+
+function copyAll() {
+  const did = document.getElementById('addr-did').textContent;
+  const ac = document.getElementById('addr-ac').textContent;
+  navigator.clipboard.writeText('didRegistry: \'' + did + '\',\nactionCommitment: \'' + ac + '\',');
+  alert('Copied!');
+}
+
+// Auto-connect if already authorized
+window.addEventListener('load', async () => {
+  if (window.ethereum) {
+    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+    if (accounts.length > 0) connectWallet();
+  }
+});
+</script>
+</body>
+</html>
