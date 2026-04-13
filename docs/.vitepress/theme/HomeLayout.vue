@@ -12,11 +12,11 @@
         <a href="#features">Features</a>
         <a href="#developers">Developers</a>
         <a href="#roadmap">Roadmap</a>
-        <a href="/XNP-docs/docs/guide/introduction">Docs</a>
+        <a href="/XNP-docs/guide/introduction">Docs</a>
       </div>
       <div class="nav-cta">
         <a class="btn btn-ghost" href="https://github.com/lessthanno/NPX" target="_blank">GitHub</a>
-        <a class="btn btn-primary" href="/XNP-docs/docs/guide/introduction">Docs →</a>
+        <a class="btn btn-primary" href="/XNP-docs/guide/introduction">Docs →</a>
       </div>
     </nav>
 
@@ -29,7 +29,7 @@
       <h1>The <strong>Agent Economy</strong><br>coordination layer</h1>
       <p>XNP gives every AI agent a verifiable identity, cryptographic proof of behavior, and a way to get paid. Permissionless. Protocol-agnostic. Production-ready.</p>
       <div class="hero-actions">
-        <a class="btn btn-primary" href="/XNP-docs/docs/guide/introduction">Read the docs</a>
+        <a class="btn btn-primary" href="/XNP-docs/guide/introduction">Read the docs</a>
         <a class="btn btn-ghost" href="https://github.com/lessthanno/NPX" target="_blank">View on GitHub</a>
       </div>
       <div class="hero-meta">
@@ -38,6 +38,23 @@
         <div class="hero-stat"><div class="num">12</div><div class="label">MCP tools</div></div>
         <div class="hero-stat"><div class="num">4</div><div class="label">Protocol adapters</div></div>
         <div class="hero-stat"><div class="num">3</div><div class="label">ZKLM tiers</div></div>
+      </div>
+    </section>
+
+    <!-- PRODUCT PREVIEW -->
+    <section class="preview-section" id="product">
+      <div class="container">
+        <div class="section-label">Product</div>
+        <h2 class="section-title">The XNP Dashboard</h2>
+        <p class="section-sub">Real-time control panel for agent operations — identity, intents, proofs, escrow, and reputation.</p>
+        <div class="preview-wrap">
+          <div class="preview-tabs">
+            <button v-for="t in previewTabs" :key="t.id" class="preview-tab" :class="{active: activePreview===t.id}" @click="activePreview=t.id">{{ t.label }}</button>
+          </div>
+          <div class="preview-img">
+            <img :src="'/XNP-docs/screenshots/'+activePreview+'.png'" :alt="activePreview" loading="lazy" />
+          </div>
+        </div>
       </div>
     </section>
 
@@ -194,7 +211,7 @@
       <p>One command to add the MCP server. Full REST API. MIT licensed.</p>
       <div class="cta-code">claude mcp add xagent -- npx @xagent/mcp-server</div>
       <div class="cta-links">
-        <a class="btn btn-primary" href="/XNP-docs/docs/guide/introduction">Read the docs</a>
+        <a class="btn btn-primary" href="/XNP-docs/guide/introduction">Read the docs</a>
         <a class="btn btn-ghost" href="https://github.com/lessthanno/NPX" target="_blank">GitHub</a>
       </div>
     </section>
@@ -206,7 +223,7 @@
         XNP Protocol
       </div>
       <div class="footer-links">
-        <a href="/XNP-docs/docs/guide/introduction">Docs</a>
+        <a href="/XNP-docs/guide/introduction">Docs</a>
         <a href="https://github.com/lessthanno/NPX" target="_blank">GitHub</a>
         <a href="#roadmap">Roadmap</a>
       </div>
@@ -218,6 +235,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+
 const activeTab = ref('mcp')
 function switchTab(id: string, e: MouseEvent) {
   activeTab.value = id
@@ -227,6 +245,16 @@ function switchTab(id: string, e: MouseEvent) {
     ;(e.target as HTMLElement).classList.add('active')
   }
 }
+
+const activePreview = ref('overview')
+const previewTabs = [
+  { id: 'overview', label: 'Overview' },
+  { id: 'register', label: 'Register Agent' },
+  { id: 'commitments', label: 'ZKLM Commitments' },
+  { id: 'intents', label: 'Intent Network' },
+  { id: 'escrow', label: 'Escrow' },
+  { id: 'reputation', label: 'Reputation' },
+]
 </script>
 
 <style>
@@ -276,6 +304,17 @@ function switchTab(id: string, e: MouseEvent) {
 .xnp-landing .section-label{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:2px;color:var(--text-3);margin-bottom:16px}
 .xnp-landing .section-title{font-size:clamp(28px,4vw,44px);font-weight:300;letter-spacing:-1.5px;margin-bottom:16px}
 .xnp-landing .section-sub{font-size:16px;color:var(--text-2);max-width:560px;line-height:1.7}
+
+/* PRODUCT PREVIEW */
+.xnp-landing .preview-section{background:var(--bg-1);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.xnp-landing .preview-wrap{margin-top:48px}
+.xnp-landing .preview-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);overflow-x:auto;-webkit-overflow-scrolling:touch}
+.xnp-landing .preview-tab{padding:10px 20px;font-size:12px;font-family:var(--mono);color:var(--text-3);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap}
+.xnp-landing .preview-tab:hover{color:var(--text-2)}
+.xnp-landing .preview-tab.active{color:var(--text);border-bottom-color:var(--text)}
+.xnp-landing .preview-img{border:1px solid var(--border);border-top:none;overflow:hidden;background:var(--bg)}
+.xnp-landing .preview-img img{width:100%;display:block;opacity:.92;transition:opacity .2s}
+.xnp-landing .preview-img img:hover{opacity:1}
 
 /* STACK */
 .xnp-landing .stack-section{background:var(--bg-1);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}

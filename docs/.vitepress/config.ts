@@ -4,14 +4,14 @@ export default defineConfig({
   title: 'XNP',
   description: 'X-Agent Network Protocol — The identity, trust, and settlement layer for the Agent Economy.',
   lang: 'en-US',
-  base: '/XNP-docs/docs/',
+  base: '/XNP-docs/',
 
   head: [
     ['meta', { name: 'theme-color', content: '#0a0a0a' }],
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:title', content: 'XNP — X-Agent Network Protocol' }],
     ['meta', { property: 'og:description', content: 'The identity, trust, and settlement layer for the Agent Economy.' }],
-    ['link', { rel: 'icon', href: '/XNP-docs/docs/favicon.svg', type: 'image/svg+xml' }],
+    ['link', { rel: 'icon', href: '/XNP-docs/favicon.svg', type: 'image/svg+xml' }],
   ],
 
   themeConfig: {

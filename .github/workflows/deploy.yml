@@ -39,9 +39,8 @@ jobs:
 
       - name: Prepare site
         run: |
-          mkdir -p _site/docs
-          cp -r docs/.vitepress/dist/* _site/docs/
-          cp docs/public/website.html _site/index.html
+          mkdir -p _site
+          cp -r docs/.vitepress/dist/* _site/
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
