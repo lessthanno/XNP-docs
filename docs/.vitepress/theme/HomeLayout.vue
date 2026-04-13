@@ -22,6 +22,7 @@
 
     <!-- HERO -->
     <section class="hero">
+      <canvas id="xnpWave" class="hero-canvas" aria-hidden="true"></canvas>
       <div class="hero-tag">
         <span class="dot"></span>
         Testnet live — Base Sepolia
@@ -246,6 +247,46 @@ function switchTab(id: string, e: MouseEvent) {
   }
 }
 
+import { onMounted, onUnmounted } from 'vue'
+
+let animFrame: number
+onMounted(() => {
+  const c = document.getElementById('xnpWave') as HTMLCanvasElement
+  if (!c) return
+  const ctx = c.getContext('2d')!
+  let w = 0, h = 0, t = 0
+  const resize = () => {
+    const r = c.parentElement!.getBoundingClientRect()
+    c.width = w = r.width * 2
+    c.height = h = 340 * 2
+    c.style.width = r.width + 'px'
+    c.style.height = '340px'
+  }
+  resize()
+  window.addEventListener('resize', resize)
+  const draw = () => {
+    ctx.clearRect(0, 0, w, h)
+    const bars = 140, barW = w / bars
+    for (let i = 0; i < bars; i++) {
+      const dist = Math.abs(i - bars / 2) / (bars / 2)
+      const env = Math.pow(1 - dist, 2)
+      const val = (
+        Math.sin(i * 0.08 + t * 0.02) * 32 +
+        Math.sin(i * 0.15 + t * 0.03) * 20 +
+        Math.sin(i * 0.04 + t * 0.015) * 16 +
+        Math.sin(i * 0.22 + t * 0.025) * 10
+      ) * env
+      const bh = Math.abs(val) * 1.4 + 1
+      ctx.fillStyle = `rgba(242,242,242,${env * 0.18 + 0.015})`
+      ctx.fillRect(i * barW, h / 2 - bh, barW - 0.5, bh * 2)
+    }
+    t++
+    animFrame = requestAnimationFrame(draw)
+  }
+  draw()
+})
+onUnmounted(() => { cancelAnimationFrame(animFrame) })
+
 const activePreview = ref('overview')
 const previewTabs = [
   { id: 'overview', label: 'Overview' },
@@ -285,8 +326,9 @@ const previewTabs = [
 .xnp-landing .btn-primary:hover{background:#d4d4d4}
 
 /* HERO */
-.xnp-landing .hero{min-height:calc(100vh - 56px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 40px 120px;position:relative}
-.xnp-landing .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(255,255,255,.04) 0%,transparent 70%);pointer-events:none}
+.xnp-landing .hero{min-height:calc(100vh - 56px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 40px 120px;position:relative;overflow:hidden}
+.xnp-landing .hero-canvas{position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);width:100%;max-width:900px;height:340px;pointer-events:none;z-index:0}
+.xnp-landing .hero>*:not(.hero-canvas){position:relative;z-index:1}
 .xnp-landing .hero-tag{display:inline-flex;align-items:center;gap:8px;padding:5px 14px;border:1px solid var(--border-2);font-size:12px;color:var(--text-2);font-family:var(--mono);margin-bottom:32px}
 .xnp-landing .dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:xnp-pulse 2s infinite;flex-shrink:0}
 @keyframes xnp-pulse{0%,100%{opacity:1}50%{opacity:.4}}
