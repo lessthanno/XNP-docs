@@ -1,10 +1,11 @@
 import DefaultTheme from 'vitepress/theme'
+import HomeLayout from './HomeLayout.vue'
 import './custom.css'
 
 export default {
   ...DefaultTheme,
   enhanceApp({ app }: { app: any }) {
-    // Force dark mode
+    app.component('HomeLayout', HomeLayout)
     if (typeof document !== 'undefined') {
       document.documentElement.classList.add('dark')
     }
