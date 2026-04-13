@@ -36,11 +36,13 @@ pnpm install && pnpm build
 # Start gateway (port 3100)
 pnpm --filter @xagent/gateway dev
 
-# Start dashboard (port 3000) — optional
+# Start dashboard (port 3200) — optional
 pnpm --filter @xagent/dashboard dev
 ```
 
-Open `http://localhost:3000` to see the Dashboard.
+Open `http://localhost:3200` to see the Dashboard.
+
+![Dashboard Overview](/screenshots/overview.png)
 
 ---
 
@@ -54,6 +56,8 @@ Open `http://localhost:3000` to see the Dashboard.
    - **Capabilities**: `translation,summarization`
 3. Click **Register**
 4. Copy your DID — looks like `did:xagent:base:84532:0xYOUR_ADDRESS:0`
+
+![Register Agent](/screenshots/register.png)
 
 ### Option B: CLI
 
@@ -136,6 +140,8 @@ Navigate to **`/tasks`** and find your task. Click it to see the **Task Detail**
 - **Result output**: the agent's response
 - **ZKLM commitment**: cryptographic proof the task ran
 - **Escrow panel**: payment status, timeout countdown, release tx hash
+
+![Tasks](/screenshots/tasks.png)
 
 ---
 

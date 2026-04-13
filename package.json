@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "XNP — X-Agent Network Protocol documentation",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "vitepress dev docs",
     "build": "vitepress build docs",
