@@ -312,7 +312,8 @@ const previewTabs = [
 .xnp-landing .preview-tab{padding:10px 20px;font-size:12px;font-family:var(--mono);color:var(--text-3);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap}
 .xnp-landing .preview-tab:hover{color:var(--text-2)}
 .xnp-landing .preview-tab.active{color:var(--text);border-bottom-color:var(--text)}
-.xnp-landing .preview-img{border:1px solid var(--border);border-top:none;overflow:hidden;background:var(--bg)}
+.xnp-landing .preview-img{border:1px solid var(--border);border-top:none;overflow:hidden;background:var(--bg);max-height:480px;position:relative}
+.xnp-landing .preview-img::after{content:'';position:absolute;bottom:0;left:0;right:0;height:120px;background:linear-gradient(to bottom,transparent,var(--bg-1));pointer-events:none}
 .xnp-landing .preview-img img{width:100%;display:block;opacity:.92;transition:opacity .2s}
 .xnp-landing .preview-img img:hover{opacity:1}
 
